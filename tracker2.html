@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>90일 퇴사 프로젝트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F6F2;--bg2:#EEECEA;--bg3:#E4E2DC;
+  --text:#1C1C1A;--text2:#6A6A62;--text3:#A0A098;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.16);
+  --green:#1D9E75;--gl:#E1F5EE;--gd:#0F6E56;
+  --red:#E24B4A;--yellow:#EF9F27;
+  --r:10px;--rl:14px;
+  --shadow:0 1px 3px rgba(0,0,0,0.08);
+}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app{max-width:800px;margin:0 auto;padding:1.5rem 1rem 5rem}
+
+/* ─ Topbar ─ */
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap}
+.topbar h1{font-size:20px;font-weight:700;letter-spacing:-0.02em}
+.topbar p{font-size:12px;color:var(--text2);margin-top:3px}
+.score-pill{background:var(--text);color:#fff;border-radius:var(--rl);padding:10px 20px;text-align:center;min-width:100px}
+.score-pill .sl{font-size:10px;opacity:.55;margin-bottom:2px}
+.score-pill .sn{font-size:28px;font-weight:700;line-height:1}
+.score-pill .ss{font-size:10px;opacity:.45;margin-top:1px}
+
+/* ─ Progress ─ */
+.prog-wrap{background:var(--bg3);border-radius:99px;height:6px;overflow:hidden;margin-bottom:.5rem}
+.prog-fill{height:100%;border-radius:99px;background:var(--green);transition:width .5s cubic-bezier(.4,0,.2,1)}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:1.25rem}
+
+/* ─ Stats ─ */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:1.25rem}
+@media(max-width:480px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--bg2);border-radius:var(--r);padding:10px 12px}
+.stat .sl{font-size:10px;color:var(--text3);margin-bottom:4px}
+.stat .sv{font-size:20px;font-weight:700}
+.stat .ss{font-size:10px;color:var(--text3)}
+
+/* ─ Sync bar ─ */
+.sync-bar{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sync-bar input{flex:1;min-width:160px;font-size:12px;padding:5px 9px;border-radius:6px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-family:inherit;outline:none}
+.sync-bar input:focus{border-color:var(--green)}
+.sync-btn{font-family:inherit;font-size:12px;padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:none;cursor:pointer;color:var(--text2);white-space:nowrap;transition:background .12s}
+.sync-btn:hover{background:var(--bg2)}
+.sync-btn.primary{border-color:var(--gd);color:var(--gd)}
+.sync-btn.primary:hover{background:var(--gl)}
+.sync-status{font-size:11px;color:var(--text3);width:100%;min-height:16px;display:block;margin-top:4px}
+.sync-status.ok{color:var(--green)}
+.sync-status.err{color:var(--red)}
+
+/* ─ Tabs ─ */
+.tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;width:fit-content;margin-bottom:1.25rem}
+.tab-btn{font-family:inherit;font-size:13px;padding:7px 16px;background:none;border:none;border-right:1px solid var(--border);cursor:pointer;color:var(--text2);transition:background .12s}
+.tab-btn:last-child{border-right:none}
+.tab-btn.active{background:#fff;color:var(--text);font-weight:500}
+.tab-btn:hover:not(.active){background:var(--bg2)}
+
+/* ─ Goals panel ─ */
+.goals-panel{background:#fff;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:1.25rem}
+.goals-panel-header{padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.goals-panel-header h2{font-size:14px;font-weight:600}
+.goals-panel-header p{font-size:11px;color:var(--text2);margin-top:1px}
+.goal-row{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.goal-row:last-child{border-bottom:none}
+.goal-row .gname{font-size:13px;flex:1;min-width:120px}
+.goal-row select,.goal-row input[type=number],.goal-row input[type=text]{font-family:inherit;font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text);outline:none}
+.goal-row select:focus,.goal-row input:focus{border-color:var(--green)}
+.goal-row .weight-wrap{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.goal-row .weight-wrap input[type=range]{width:70px;accent-color:var(--green)}
+.goal-badge{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500;white-space:nowrap}
+.goal-badge.hit{background:var(--gl);color:var(--gd)}
+.goal-badge.miss{background:#FEE2E2;color:#B91C1C}
+.goal-badge.pending{background:var(--bg3);color:var(--text2)}
+.add-goal-row{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+
+/* ─ Day scroller ─ */
+.day-scroller{overflow-x:auto;margin-bottom:1.25rem;padding-bottom:3px}
+.day-scroller::-webkit-scrollbar{height:3px}
+.day-scroller::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+.day-row{display:flex;gap:5px;min-width:max-content}
+.day-pill{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:var(--r);border:1px solid var(--border);cursor:pointer;min-width:48px;background:var(--bg);transition:border-color .15s,background .15s;user-select:none}
+.day-pill:hover{background:var(--bg2)}
+.day-pill.selected{border-color:var(--green);background:var(--gl)}
+.day-pill.today-pill{border-style:dashed;border-color:var(--text3)}
+.day-pill.selected.today-pill{border-style:solid;border-color:var(--green)}
+.day-pill .dn{font-size:11px;font-weight:600;color:var(--text)}
+.day-pill .dd{font-size:9px;color:var(--text3)}
+.day-pill .dot{width:5px;height:5px;border-radius:50%;background:var(--border2)}
+.day-pill.has-data .dot{background:var(--green)}
+.day-pill.selected .dn{color:var(--gd)}
+
+/* ─ Daily panel ─ */
+.daily-panel{background:#fff;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:1.25rem}
+.panel-hdr{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.panel-title{font-size:14px;font-weight:600;flex:1}
+.energy-lbl{font-size:11px;color:var(--text2)}
+.ebtn{font-size:17px;padding:2px 5px;border-radius:6px;border:1px solid transparent;background:none;cursor:pointer;transition:background .12s}
+.ebtn:hover{background:var(--bg3)}
+.ebtn.sel{background:#fff;border-color:var(--border2)}
+
+/* ─ Category ─ */
+.cat-sec{border-bottom:1px solid var(--border)}
+.cat-sec:last-child{border-bottom:none}
+.cat-hdr{display:flex;align-items:center;gap:7px;padding:10px 16px 8px;cursor:pointer;user-select:none}
+.cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cat-nm{font-size:13px;font-weight:600;flex:1}
+.cat-prog{font-size:11px;color:var(--text3)}
+.cat-acts{display:flex;gap:1px;opacity:0;transition:opacity .15s}
+.cat-hdr:hover .cat-acts{opacity:1}
+.ib{background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:5px;font-size:12px;color:var(--text3);transition:color .12s,background .12s}
+.ib:hover{background:var(--bg2);color:var(--text2)}
+.ib.del:hover{color:var(--red)}
+.tasks-list{padding:0 16px 10px 32px}
+.task-row{display:flex;align-items:center;gap:7px;padding:4px 0}
+.task-check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border2);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,border-color .15s;font-size:11px;color:#fff}
+.task-check.checked{background:var(--green);border-color:var(--green)}
+.task-check.ever-checked{background:var(--bg3);border-color:var(--border2);color:var(--text3)}
+.task-nm{font-size:13px;flex:1}
+.task-nm.done{text-decoration:line-through;color:var(--text3)}
+.task-acts{display:flex;gap:1px;opacity:0;transition:opacity .15s}
+.task-row:hover .task-acts{opacity:1}
+.add-task-row{display:flex;gap:6px;margin-top:3px;margin-left:0}
+input[type=text],textarea{font-family:inherit;font-size:13px;padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:var(--bg2);color:var(--text);outline:none;transition:border-color .15s}
+input[type=text]:focus,textarea:focus{border-color:var(--green);background:#fff}
+.sb{font-family:inherit;font-size:12px;padding:5px 11px;border-radius:7px;border:1px solid var(--border2);background:none;cursor:pointer;color:var(--text2);white-space:nowrap;transition:background .12s}
+.sb:hover{background:var(--bg2)}
+.sb.p{border-color:var(--gd);color:var(--gd)}
+.sb.p:hover{background:var(--gl)}
+.add-cat-row{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:7px;align-items:center}
+.memo-sec{padding:11px 16px 13px;border-top:1px solid var(--border)}
+.memo-lbl{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:.05em;margin-bottom:5px}
+textarea{width:100%;resize:vertical;min-height:50px;line-height:1.6}
+
+/* ─ Section label ─ */
+.sec-lbl{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
+
+/* ─ Goal progress bars ─ */
+.goal-prog-section{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;margin-bottom:1.25rem}
+.goal-prog-section h3{font-size:13px;font-weight:600;margin-bottom:10px}
+.gp-row{margin-bottom:8px}
+.gp-top{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:3px}
+.gp-bar-wrap{background:var(--bg3);border-radius:99px;height:5px;overflow:hidden}
+.gp-bar-fill{height:100%;border-radius:99px;background:var(--green);transition:width .4s}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Top -->
+<div class="topbar">
+  <div>
+    <h1>90일 퇴사 프로젝트 🌿</h1>
+    <p id="subtitle">오늘도 한 걸음씩</p>
+  </div>
+  <div class="score-pill">
+    <div class="sl">전체 달성도</div>
+    <div class="sn" id="total-score">0</div>
+    <div class="ss">/ 100점</div>
+  </div>
+</div>
+
+<div class="prog-wrap"><div class="prog-fill" id="main-bar" style="width:0%"></div></div>
+<div class="prog-meta">
+  <span id="day-meta">D+1 · 89일 남음</span>
+  <span id="check-meta">오늘 0 / 0개 완료</span>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="sl">누적 체크</div><div class="sv" id="s-checks">0</div><div class="ss">개</div></div>
+  <div class="stat"><div class="sl">평균 에너지</div><div class="sv" id="s-energy">—</div></div>
+  <div class="stat"><div class="sl">연속 달성</div><div class="sv" id="s-streak">0</div><div class="ss">일</div></div>
+  <div class="stat"><div class="sl">이번 주</div><div class="sv" id="s-week">0</div><div class="ss">%</div></div>
+</div>
+
+<!-- Sync bar -->
+<div class="sync-bar">
+  <div style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:200px">
+    <div style="display:flex;align-items:center;gap:6px">
+      <span style="font-size:11px;color:var(--text2);white-space:nowrap;min-width:72px">🔗 GitHub 토큰</span>
+      <input type="text" id="token-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="ghp_xxxx... (한 번만 입력)" style="flex:1;font-size:12px" />
+    </div>
+    <!-- Gist ID hardcoded — no input needed -->
+    <input type="hidden" id="gist-id-input" value="3d7b310ceffee9fc594ccd4810bd043a" />
+  </div>
+  <div style="display:flex;flex-direction:column;gap:5px">
+    <button class="sync-btn primary" id="sync-save-btn">☁️ 저장</button>
+    <button class="sync-btn" id="sync-load-btn">📥 불러오기</button>
+  </div>
+  <span class="sync-status" id="sync-status" style="width:100%"></span>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" data-tab="daily">📅 일일 체크</button>
+  <button class="tab-btn" data-tab="goals">🎯 목표 설정</button>
+</div>
+
+<!-- Goal progress summary (always visible) -->
+<div class="goal-prog-section" id="goal-prog-section"></div>
+
+<!-- === GOALS TAB === -->
+<div id="tab-goals" style="display:none">
+  <div class="goals-panel">
+    <div class="goals-panel-header">
+      <div>
+        <h2>목표 기준 설정</h2>
+        <p>각 목표의 달성 조건과 점수 가중치를 설정하세요</p>
+      </div>
+      <button class="sb p" id="add-goal-btn">+ 목표 추가</button>
+    </div>
+    <div id="goals-list"></div>
+  </div>
+</div>
+
+<!-- === DAILY TAB === -->
+<div id="tab-daily">
+  <div class="sec-lbl">날짜 선택</div>
+  <div class="day-scroller"><div class="day-row" id="day-row"></div></div>
+
+  <div class="daily-panel">
+    <div class="panel-hdr">
+      <div class="panel-title" id="panel-title">오늘</div>
+      <span class="energy-lbl">에너지</span>
+      <div style="display:flex;gap:2px">
+        <button class="ebtn" data-e="1">😞</button>
+        <button class="ebtn" data-e="2">😐</button>
+        <button class="ebtn" data-e="3">🙂</button>
+        <button class="ebtn" data-e="4">😊</button>
+        <button class="ebtn" data-e="5">🔥</button>
+      </div>
+    </div>
+    <div id="cats-container"></div>
+    <div class="add-cat-row">
+      <input type="text" id="add-cat-input" placeholder="새 카테고리 추가..." style="flex:1" />
+      <button class="sb p" id="add-cat-btn">+ 추가</button>
+    </div>
+    <div class="memo-sec">
+      <div class="memo-lbl">오늘 메모</div>
+      <textarea id="memo-box" placeholder="오늘 느낀 점, 컨디션, 특이사항..."></textarea>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ─────────────────────────────────────────
+//  Constants & defaults
+// ─────────────────────────────────────────
+const START = new Date(2026,4,11);
+const TOTAL = 90;
+const LKEY  = 'exit90_v3';
+const TKEY  = 'exit90_token';
+const GKEY  = 'exit90_gist';
+const HARDCODED_GIST_ID = '3d7b310ceffee9fc594ccd4810bd043a';
+
+const COLORS = ['#1D9E75','#EF9F27','#7F77DD','#D85A30','#378ADD','#D4537E','#639922','#BA7517'];
+
+const DEFAULT_CATS = [
+  {name:'마음 지키기',   color:'#5DCAA5', persistent:false, tasks:['두부랑 시간보내기','맛난 요리 해먹기','재밌는 영상 보기','책 읽기']},
+  {name:'경제력 갖추기', color:'#EF9F27', persistent:false, tasks:['경제 신문 읽기','가계부 적기','500만원 모으기']},
+  {name:'엄마 상속 처리',color:'#7F77DD', persistent:true,  tasks:['기대출 선납 서류','기대출 선납 하기','취득세 납부','대출 조회','대출 승계 or 대환']},
+  {name:'이직 준비',     color:'#D85A30', persistent:false, tasks:['AI 동향 체크','공고 찾아보기','이력서/포폴 수정','지원하기']},
+];
+
+// Goal types: all_checked | min_count | manual_check
+const DEFAULT_GOALS = [
+  {id:'g1', name:'500만원 모으기',      type:'manual_check', target:1,  weight:20, taskRef:''},
+  {id:'g2', name:'엄마 상속 처리 완료', type:'all_checked',  target:1,  weight:20, catRef:'엄마 상속 처리'},
+  {id:'g3', name:'이력서/포폴 수정',    type:'min_count',    target:1,  weight:15, taskRef:'이력서/포폴 수정'},
+  {id:'g4', name:'공고 찾아보기 10회+', type:'min_count',    target:10, weight:15, taskRef:'공고 찾아보기'},
+  {id:'g5', name:'지원 5회 이상',       type:'min_count',    target:5,  weight:15, taskRef:'지원하기'},
+  {id:'g6', name:'경제 신문 60일+',     type:'min_count',    target:60, weight:15, taskRef:'경제 신문 읽기'},
+];
+
+// ─────────────────────────────────────────
+//  State
+// ─────────────────────────────────────────
+let state = {categories:[], days:{}, goals:[], goalChecks:{}};
+let currentDay = 1;
+
+function uid(){return 'id_'+Math.random().toString(36).slice(2,9)}
+
+const SEED_DATA = {"categories":[{"id":"id_jib3z2m","name":"마음 지키기","color":"#5DCAA5","persistent":false,"tasks":[{"id":"id_ie5cfh6","name":"두부랑 시간보내기"},{"id":"id_zfh10xk","name":"맛난 요리 해먹기"},{"id":"id_8wct3zd","name":"재밌는 영상 보기"},{"id":"id_momrstf","name":"책 읽기"}]},{"id":"id_ozz6got","name":"경제력 갖추기","color":"#EF9F27","persistent":false,"tasks":[{"id":"id_5ecar51","name":"경제 신문 읽기"},{"id":"id_ou0kpez","name":"가계부 적기"},{"id":"id_445n567","name":"500만원 모으기"}]},{"id":"id_xrjx85q","name":"엄마 상속 처리","color":"#7F77DD","persistent":true,"tasks":[{"id":"id_k1vvvtu","name":"기대출 선납 서류"},{"id":"id_iss1myc","name":"기대출 선납 하기"},{"id":"id_iljd5n3","name":"취득세 납부"},{"id":"id_l5ffj6v","name":"대출 조회"},{"id":"id_0pxbmkj","name":"대출 승계 or 대환"}]},{"id":"id_u4kmn0j","name":"이직 준비","color":"#D85A30","persistent":false,"tasks":[{"id":"id_mzcegjx","name":"AI 동향 체크"},{"id":"id_yg1kxkv","name":"공고 찾아보기"},{"id":"id_bfa4o6w","name":"이력서/포폴 수정"},{"id":"id_eeeozv9","name":"지원하기"},{"id":"id_dp0vope","name":"영어 회화"}]}],"days":{"2026-05-11":{"checks":{"id_ie5cfh6":true,"id_zfh10xk":true,"id_5ecar51":true,"id_dp0vope":true},"energy":2},"2026-05-12":{"checks":{"id_ou0kpez":true},"energy":1},"2026-05-13":{"checks":{"id_ie5cfh6":true,"id_zfh10xk":true,"id_5ecar51":true,"id_ou0kpez":true}},"2026-05-14":{"checks":{"id_ie5cfh6":true,"id_ou0kpez":true}},"2026-05-15":{"checks":{"id_ie5cfh6":true,"id_5ecar51":true,"id_ou0kpez":true,"id_k1vvvtu":true,"id_l5ffj6v":true},"energy":2},"2026-05-16":{"checks":{"id_ie5cfh6":true,"id_ou0kpez":true},"energy":3},"2026-05-17":{"checks":{"id_ie5cfh6":true,"id_8wct3zd":true,"id_5ecar51":true,"id_ou0kpez":true},"energy":2}},"goals":[{"id":"g1","name":"500만원 모으기","type":"manual_check","target":1,"weight":20,"taskRef":""},{"id":"g2","name":"엄마 상속 처리 완료","type":"all_checked","target":1,"weight":20,"catRef":"엄마 상속 처리"},{"id":"g3","name":"이력서/포폴 수정","type":"min_count","target":1,"weight":15,"taskRef":"이력서/포폴 수정"},{"id":"g4","name":"공고 찾아보기 10회+","type":"min_count","target":10,"weight":15,"taskRef":"공고 찾아보기"},{"id":"g5","name":"지원 5회 이상","type":"min_count","target":5,"weight":15,"taskRef":"지원하기"},{"id":"g6","name":"경제 신문 60일+","type":"min_count","target":60,"weight":15,"taskRef":"경제 신문 읽기"}],"goalChecks":{}};
+
+function load(){
+  try{
+    const raw=localStorage.getItem(LKEY);
+    if(raw){
+      state=JSON.parse(raw);
+      // 엄마 상속 처리 persistent 플래그 보정
+      state.categories.forEach(c=>{
+        if(c.name==='엄마 상속 처리') c.persistent=true;
+        else if(c.persistent===undefined) c.persistent=false;
+      });
+      // goals 없으면 seed에서 보충
+      if(!state.goals||state.goals.length===0) state.goals=JSON.parse(JSON.stringify(SEED_DATA.goals));
+      if(!state.goalChecks) state.goalChecks={};
+      return;
+    }
+  }catch(e){}
+  // 로컬 데이터 없음 → seed 데이터 사용
+  state=JSON.parse(JSON.stringify(SEED_DATA));
+  save();
+}
+
+function save(){
+  try{localStorage.setItem(LKEY,JSON.stringify(state))}catch(e){}
+  scheduleAutoSync();
+}
+
+// ─────────────────────────────────────────
+//  Auto-sync (3초 디바운스)
+// ─────────────────────────────────────────
+let autoSyncTimer=null;
+let autoSyncDirty=false;
+
+function scheduleAutoSync(){
+  autoSyncDirty=true;
+  if(autoSyncTimer) clearTimeout(autoSyncTimer);
+  autoSyncTimer=setTimeout(()=>{
+    const token=localStorage.getItem(TKEY)||'';
+    const gistId=localStorage.getItem(GKEY)||HARDCODED_GIST_ID;
+    if(token&&gistId) doAutoSync(token,gistId);
+  },3000);
+}
+
+async function doAutoSync(token,gistId){
+  setStatus('동기화 중...','');
+  try{
+    const body={description:'90일 퇴사 프로젝트 데이터',public:false,files:{'exit90.json':{content:JSON.stringify(state,null,2)}}};
+    const res=await fetch(`https://api.github.com/gists/${gistId}`,{
+      method:'PATCH',
+      headers:{'Authorization':`token ${token}`,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    if(res.ok){
+      autoSyncDirty=false;
+      setStatus(`✅ 자동저장됨 ${new Date().toLocaleTimeString()}`,'ok');
+    } else {
+      setStatus('자동저장 실패 (토큰/ID 확인)','err');
+    }
+  }catch(e){setStatus('자동저장 오류','err')}
+}
+
+// ─────────────────────────────────────────
+//  Date helpers
+// ─────────────────────────────────────────
+function dayKey(n){
+  const d=new Date(START);d.setDate(d.getDate()+n-1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function dayLabel(n){
+  const d=new Date(START);d.setDate(d.getDate()+n-1);
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+function todayDayNum(){
+  const now=new Date();now.setHours(0,0,0,0);
+  const s=new Date(START);s.setHours(0,0,0,0);
+  return Math.max(1,Math.min(Math.floor((now-s)/86400000)+1,TOTAL));
+}
+
+// ─────────────────────────────────────────
+//  Goal scoring
+// ─────────────────────────────────────────
+function countTaskAcrossDays(taskName){
+  let cnt=0;
+  Object.values(state.days).forEach(d=>{
+    const checks=d.checks||{};
+    // find task id by name
+    state.categories.forEach(cat=>{
+      cat.tasks.forEach(t=>{
+        if(t.name===taskName && checks[t.id]) cnt++;
+      });
+    });
+  });
+  return cnt;
+}
+
+function isCatAllChecked(catName){
+  const cat=state.categories.find(c=>c.name===catName);
+  if(!cat||cat.tasks.length===0) return false;
+  // for "all_checked" we check if every task was checked at least once across all days
+  return cat.tasks.every(task=>{
+    return Object.values(state.days).some(d=>(d.checks||{})[task.id]);
+  });
+}
+
+function goalProgress(g){
+  if(g.type==='manual_check') return {done:(state.goalChecks||{})[g.id]?1:0, target:1};
+  if(g.type==='all_checked'){
+    const done=isCatAllChecked(g.catRef)?1:0;
+    return {done,target:1};
+  }
+  if(g.type==='min_count'){
+    const done=countTaskAcrossDays(g.taskRef);
+    return {done,target:g.target};
+  }
+  return {done:0,target:1};
+}
+
+function computeScore(){
+  const goals=state.goals||[];
+  if(goals.length===0) return 0;
+  const totalW=goals.reduce((a,g)=>a+(g.weight||10),0);
+  if(totalW===0) return 0;
+  let earned=0;
+  goals.forEach(g=>{
+    const {done,target}=goalProgress(g);
+    const ratio=Math.min(done/Math.max(target,1),1);
+    earned+=ratio*(g.weight||10);
+  });
+  return Math.min(Math.round(earned/totalW*100),100);
+}
+
+// ─────────────────────────────────────────
+//  Stats
+// ─────────────────────────────────────────
+function computeStats(){
+  let checks=0,eSum=0,eCnt=0,streak=0,wCheck=0,wTotal=0;
+  Object.values(state.days).forEach(d=>{
+    checks+=Object.values(d.checks||{}).filter(Boolean).length;
+    if(d.energy){eSum+=d.energy;eCnt++}
+  });
+  const today=currentDay;
+  for(let i=today;i>=1;i--){
+    const d=state.days[dayKey(i)];
+    if(!d) break;
+    const t=Object.keys(d.checks||{}).length;
+    const dn=Object.values(d.checks||{}).filter(Boolean).length;
+    if(t>0&&dn/t>=0.5) streak++;else break;
+  }
+  for(let i=Math.max(1,today-6);i<=today;i++){
+    const d=state.days[dayKey(i)];
+    if(d){wTotal+=Object.keys(d.checks||{}).length;wCheck+=Object.values(d.checks||{}).filter(Boolean).length}
+  }
+  const avgE=eCnt===0?'—':['😞','😐','🙂','😊','🔥'][Math.round(eSum/eCnt)-1];
+  return {checks,avgE,streak,weekRate:wTotal>0?Math.round(wCheck/wTotal*100):0};
+}
+
+// ─────────────────────────────────────────
+//  Render: Header
+// ─────────────────────────────────────────
+function renderHeader(){
+  const sc=computeScore();
+  document.getElementById('total-score').textContent=sc;
+  document.getElementById('main-bar').style.width=sc+'%';
+  const rem=TOTAL-currentDay+1;
+  document.getElementById('day-meta').textContent=`D+${currentDay} · ${rem}일 남음`;
+  const st=computeStats();
+  document.getElementById('s-checks').textContent=st.checks;
+  document.getElementById('s-energy').textContent=st.avgE;
+  document.getElementById('s-streak').textContent=st.streak;
+  document.getElementById('s-week').textContent=st.weekRate;
+  const subs=['번아웃을 넘어, 새 챕터로 🌿','오늘도 나를 지키는 중','한 걸음씩, 반드시 된다','지금 잘 하고 있어요'];
+  document.getElementById('subtitle').textContent=subs[currentDay%subs.length];
+}
+
+// ─────────────────────────────────────────
+//  Render: Goal progress summary
+// ─────────────────────────────────────────
+function renderGoalProgress(){
+  const sec=document.getElementById('goal-prog-section');
+  const goals=state.goals||[];
+  if(goals.length===0){sec.style.display='none';return}
+  sec.style.display='block';
+  let html='<h3 style="font-size:13px;font-weight:600;margin-bottom:10px">🎯 목표 진행 현황</h3>';
+  goals.forEach(g=>{
+    const {done,target}=goalProgress(g);
+    const pct=Math.min(Math.round(done/Math.max(target,1)*100),100);
+    const hit=done>=target;
+    html+=`<div class="gp-row">
+      <div class="gp-top">
+        <span>${g.name} <span style="font-size:10px;color:var(--text3)">가중치 ${g.weight}점</span></span>
+        <span style="font-weight:600;color:${hit?'var(--green)':'var(--text2)'}">${done}/${target} ${hit?'✅':''}</span>
+      </div>
+      <div class="gp-bar-wrap"><div class="gp-bar-fill" style="width:${pct}%;background:${hit?'var(--green)':'var(--yellow)'}"></div></div>
+    </div>`;
+  });
+  sec.innerHTML=html;
+}
+
+// ─────────────────────────────────────────
+//  Render: Goals tab
+// ─────────────────────────────────────────
+function renderGoals(){
+  const list=document.getElementById('goals-list');
+  const goals=state.goals||[];
+  list.innerHTML='';
+  goals.forEach((g,idx)=>{
+    const {done,target}=goalProgress(g);
+    const hit=done>=target;
+    const badge=hit?'hit':done>0?'pending':'miss';
+    const badgeTxt=hit?'달성':'진행중';
+
+    const row=document.createElement('div');
+    row.className='goal-row';
+
+    // type-specific input
+    let extraHtml='';
+    if(g.type==='min_count'){
+      extraHtml=`<input type="number" min="1" value="${g.target}" style="width:60px" onchange="updateGoalTarget('${g.id}',this.value)" />
+        <span style="font-size:11px;color:var(--text2)">회 이상</span>
+        <input type="text" value="${g.taskRef||''}" placeholder="항목명" style="width:110px" onchange="updateGoalTaskRef('${g.id}',this.value)" />`;
+    } else if(g.type==='all_checked'){
+      extraHtml=`<input type="text" value="${g.catRef||''}" placeholder="카테고리명" style="width:120px" onchange="updateGoalCatRef('${g.id}',this.value)" />
+        <span style="font-size:11px;color:var(--text2)">전체 체크</span>`;
+    } else {
+      extraHtml=`<button class="sb${(state.goalChecks||{})[g.id]?' p':''}" onclick="toggleGoalManual('${g.id}')">${(state.goalChecks||{})[g.id]?'✅ 달성':'체크 안됨'}</button>`;
+    }
+
+    row.innerHTML=`
+      <input type="text" value="${g.name}" style="flex:1;min-width:100px" onchange="updateGoalName('${g.id}',this.value)" />
+      <select onchange="updateGoalType('${g.id}',this.value)">
+        <option value="manual_check" ${g.type==='manual_check'?'selected':''}>수동 체크</option>
+        <option value="min_count" ${g.type==='min_count'?'selected':''}>N회 이상</option>
+        <option value="all_checked" ${g.type==='all_checked'?'selected':''}>전체 체크</option>
+      </select>
+      ${extraHtml}
+      <div class="weight-wrap">
+        <span>가중치</span>
+        <input type="range" min="5" max="40" step="5" value="${g.weight||10}" oninput="updateGoalWeight('${g.id}',this.value);this.nextElementSibling.textContent=this.value+'점'" />
+        <span style="min-width:28px">${g.weight||10}점</span>
+      </div>
+      <span class="goal-badge ${badge}">${badgeTxt}</span>
+      <button class="ib del" onclick="deleteGoal('${g.id}')">🗑</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ─────────────────────────────────────────
+//  Render: Days
+// ─────────────────────────────────────────
+function renderDays(){
+  const row=document.getElementById('day-row');
+  row.innerHTML='';
+  const todayN=todayDayNum();
+  for(let i=1;i<=TOTAL;i++){
+    const k=dayKey(i);
+    const d=state.days[k];
+    const hasDot=d&&(d.energy||Object.values(d.checks||{}).some(Boolean));
+    const el=document.createElement('div');
+    el.className='day-pill'+(i===currentDay?' selected':'')+(hasDot?' has-data':'')+(i===todayN?' today-pill':'');
+    el.innerHTML=`<div class="dn">D+${i}</div><div class="dd">${dayLabel(i)}</div><div class="dot"></div>`;
+    el.onclick=()=>{currentDay=i;renderAll()};
+    row.appendChild(el);
+  }
+  const sel=row.querySelector('.selected');
+  if(sel) sel.scrollIntoView({inline:'center',behavior:'smooth',block:'nearest'});
+}
+
+// ─────────────────────────────────────────
+//  Persistent check helper
+// ─────────────────────────────────────────
+// 태스크가 특정 날짜 이전에 처음 체크됐는지 확인 (persistent용)
+function getTaskFirstCheckedDay(taskId){
+  // returns the earliest dayNum where this task was checked, or null
+  let earliest = null;
+  for(let i=1;i<=TOTAL;i++){
+    const k=dayKey(i);
+    const d=state.days[k];
+    if(d&&(d.checks||{})[taskId]){
+      earliest=i;
+      break;
+    }
+  }
+  return earliest;
+}
+
+function isTaskEverChecked(taskId){
+  return getTaskFirstCheckedDay(taskId)!==null;
+}
+
+// 현재 보고 있는 날(currentDay)이 최초 체크일 이후인지
+function isTaskPersistentForDay(taskId, dayNum){
+  const first=getTaskFirstCheckedDay(taskId);
+  if(first===null) return false;
+  return dayNum>=first; // 체크한 날 포함 이후만 표시
+}
+
+// ─────────────────────────────────────────
+//  Render: Daily panel
+// ─────────────────────────────────────────
+function renderPanel(){
+  const k=dayKey(currentDay);
+  const dayData=state.days[k]||{};
+  const checks=dayData.checks||{};
+  const energy=dayData.energy||0;
+
+  document.getElementById('panel-title').textContent=`D+${currentDay} · ${dayLabel(currentDay)}`;
+  document.getElementById('memo-box').value=dayData.memo||'';
+  document.querySelectorAll('.ebtn').forEach(b=>b.classList.toggle('sel',parseInt(b.dataset.e)===energy));
+
+  let todayTotal=0,todayDone=0;
+  const container=document.getElementById('cats-container');
+  container.innerHTML='';
+
+  state.categories.forEach(cat=>{
+    const catDone=cat.tasks.filter(t=>cat.persistent?isTaskEverChecked(t.id):!!checks[t.id]).length;
+    todayTotal+=cat.tasks.length;todayDone+=cat.tasks.filter(t=>!!checks[t.id]).length;
+
+    const sec=document.createElement('div');sec.className='cat-sec';
+    const hdr=document.createElement('div');hdr.className='cat-hdr';
+    hdr.innerHTML=`
+      <div class="cat-dot" style="background:${cat.color}"></div>
+      <div class="cat-nm">${cat.name}${cat.persistent?' <span style="font-size:9px;padding:1px 5px;border-radius:99px;background:#EDE9FE;color:#6D28D9;margin-left:4px">영구체크</span>':''}</div>
+      <div class="cat-acts">
+        <button class="ib" onclick="editCat('${cat.id}')">✏️</button>
+        <button class="ib del" onclick="delCat('${cat.id}')">🗑</button>
+      </div>
+      <div class="cat-prog">${catDone}/${cat.tasks.length}</div>`;
+
+    const list=document.createElement('div');list.className='tasks-list';
+    cat.tasks.forEach(task=>{
+      const todayChecked=!!checks[task.id];
+      const everChecked=cat.persistent&&isTaskPersistentForDay(task.id,currentDay);
+      const effectiveDone=todayChecked||everChecked;
+      const row=document.createElement('div');row.className='task-row';
+      row.innerHTML=`
+        <button class="task-check ${todayChecked?'checked':everChecked?'ever-checked':''}" onclick="toggleTask('${cat.id}','${task.id}')">${todayChecked?'✓':everChecked?'✓':''}</button>
+        <div class="task-nm ${effectiveDone?'done':''}">${task.name}${everChecked&&!todayChecked?' <span style="font-size:10px;color:var(--text3)">(완료됨)</span>':''}</div>
+        <div class="task-acts">
+          <button class="ib" onclick="editTask('${cat.id}','${task.id}')">✏️</button>
+          <button class="ib del" onclick="delTask('${cat.id}','${task.id}')">🗑</button>
+        </div>`;
+      list.appendChild(row);
+    });
+
+    const addRow=document.createElement('div');addRow.className='add-task-row';
+    addRow.innerHTML=`
+      <input type="text" class="tadd" data-catid="${cat.id}" placeholder="할 일 추가..." style="flex:1;margin-left:25px" />
+      <button class="sb" onclick="addTask('${cat.id}')">추가</button>`;
+    addRow.querySelector('input').addEventListener('keydown',e=>{if(e.key==='Enter')addTask(cat.id)});
+    list.appendChild(addRow);
+
+    sec.appendChild(hdr);sec.appendChild(list);
+    container.appendChild(sec);
+  });
+
+  document.getElementById('check-meta').textContent=`오늘 ${todayDone} / ${todayTotal}개 완료`;
+}
+
+function renderAll(){
+  renderHeader();
+  renderGoalProgress();
+  renderDays();
+  renderPanel();
+  renderGoals();
+}
+
+// ─────────────────────────────────────────
+//  Task interactions
+// ─────────────────────────────────────────
+window.toggleTask=(catId,taskId)=>{
+  const k=dayKey(currentDay);
+  if(!state.days[k]) state.days[k]={checks:{}};
+  if(!state.days[k].checks) state.days[k].checks={};
+  state.days[k].checks[taskId]=!state.days[k].checks[taskId];
+  save();renderAll();
+};
+window.editTask=(catId,taskId)=>{
+  const cat=state.categories.find(c=>c.id===catId);
+  const task=cat&&cat.tasks.find(t=>t.id===taskId);
+  if(!task) return;
+  const n=prompt('항목 이름 수정:',task.name);
+  if(n&&n.trim()){task.name=n.trim();save();renderAll()}
+};
+window.delTask=(catId,taskId)=>{
+  const cat=state.categories.find(c=>c.id===catId);
+  if(!cat||!confirm('삭제할까요?')) return;
+  cat.tasks=cat.tasks.filter(t=>t.id!==taskId);save();renderAll();
+};
+window.addTask=(catId)=>{
+  const inp=document.querySelector(`.tadd[data-catid="${catId}"]`);
+  if(!inp||!inp.value.trim()) return;
+  const cat=state.categories.find(c=>c.id===catId);
+  if(!cat) return;
+  cat.tasks.push({id:uid(),name:inp.value.trim()});inp.value='';save();renderAll();
+};
+window.editCat=(catId)=>{
+  const cat=state.categories.find(c=>c.id===catId);if(!cat)return;
+  const n=prompt('카테고리 이름 수정:',cat.name);
+  if(n&&n.trim()){cat.name=n.trim();save();renderAll()}
+};
+window.delCat=(catId)=>{
+  if(!confirm('카테고리 전체를 삭제할까요?')) return;
+  state.categories=state.categories.filter(c=>c.id!==catId);save();renderAll();
+};
+
+document.getElementById('add-cat-btn').onclick=()=>{
+  const inp=document.getElementById('add-cat-input');
+  if(!inp.value.trim()) return;
+  state.categories.push({id:uid(),name:inp.value.trim(),color:COLORS[state.categories.length%COLORS.length],tasks:[]});
+  inp.value='';save();renderAll();
+};
+document.getElementById('add-cat-input').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('add-cat-btn').click()});
+
+document.querySelectorAll('.ebtn').forEach(btn=>{
+  btn.onclick=()=>{
+    const e=parseInt(btn.dataset.e);
+    const k=dayKey(currentDay);
+    if(!state.days[k]) state.days[k]={checks:{}};
+    state.days[k].energy=state.days[k].energy===e?0:e;
+    save();renderAll();
+  };
+});
+
+document.getElementById('memo-box').addEventListener('input',function(){
+  const k=dayKey(currentDay);
+  if(!state.days[k]) state.days[k]={checks:{}};
+  state.days[k].memo=this.value;save();
+});
+
+// ─────────────────────────────────────────
+//  Goal interactions
+// ─────────────────────────────────────────
+window.updateGoalName=(id,v)=>{const g=state.goals.find(x=>x.id===id);if(g){g.name=v;save();renderAll()}};
+window.updateGoalType=(id,v)=>{const g=state.goals.find(x=>x.id===id);if(g){g.type=v;save();renderAll()}};
+window.updateGoalTarget=(id,v)=>{const g=state.goals.find(x=>x.id===id);if(g){g.target=parseInt(v)||1;save();renderAll()}};
+window.updateGoalTaskRef=(id,v)=>{const g=state.goals.find(x=>x.id===id);if(g){g.taskRef=v;save();renderAll()}};
+window.updateGoalCatRef=(id,v)=>{const g=state.goals.find(x=>x.id===id);if(g){g.catRef=v;save();renderAll()}};
+window.updateGoalWeight=(id,v)=>{const g=state.goals.find(x=>x.id===id);if(g){g.weight=parseInt(v)||10;save();renderAll()}};
+window.toggleGoalManual=(id)=>{
+  if(!state.goalChecks) state.goalChecks={};
+  state.goalChecks[id]=!state.goalChecks[id];save();renderAll();
+};
+window.deleteGoal=(id)=>{
+  if(!confirm('이 목표를 삭제할까요?')) return;
+  state.goals=state.goals.filter(g=>g.id!==id);save();renderAll();
+};
+
+document.getElementById('add-goal-btn').onclick=()=>{
+  if(!state.goals) state.goals=[];
+  state.goals.push({id:uid(),name:'새 목표',type:'manual_check',target:1,weight:10,taskRef:'',catRef:''});
+  save();renderAll();
+};
+
+// ─────────────────────────────────────────
+//  Tabs
+// ─────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-daily').style.display=btn.dataset.tab==='daily'?'block':'none';
+    document.getElementById('tab-goals').style.display=btn.dataset.tab==='goals'?'block':'none';
+  };
+});
+
+// ─────────────────────────────────────────
+//  GitHub Gist Sync
+// ─────────────────────────────────────────
+function setStatus(msg,type=''){
+  const el=document.getElementById('sync-status');
+  el.textContent=msg;el.className='sync-status'+(type?' '+type:'');
+}
+
+async function syncSave(){
+  const token=document.getElementById('token-input').value.trim();
+  if(!token){setStatus('토큰을 입력해주세요','err');return}
+  localStorage.setItem(TKEY,token);
+  setStatus('저장 중...','');
+  try{
+    let gistId=document.getElementById('gist-id-input').value.trim()||localStorage.getItem(GKEY)||HARDCODED_GIST_ID;
+    const body={
+      description:'90일 퇴사 프로젝트 데이터',
+      public:false,
+      files:{'exit90.json':{content:JSON.stringify(state,null,2)}}
+    };
+    let res,json;
+    if(gistId){
+      res=await fetch(`https://api.github.com/gists/${gistId}`,{
+        method:'PATCH',
+        headers:{'Authorization':`token ${token}`,'Content-Type':'application/json'},
+        body:JSON.stringify(body)
+      });
+    } else {
+      res=await fetch('https://api.github.com/gists',{
+        method:'POST',
+        headers:{'Authorization':`token ${token}`,'Content-Type':'application/json'},
+        body:JSON.stringify(body)
+      });
+    }
+    json=await res.json();
+    if(json.id){
+      localStorage.setItem(GKEY,json.id);
+      document.getElementById('gist-id-input').value=json.id;
+      setStatus(`✅ 저장 완료 · Gist ID: ${json.id} (다른 기기에 복사하세요)`,'ok');
+    } else {
+      setStatus('저장 실패: '+(json.message||'unknown'),'err');
+    }
+  }catch(e){setStatus('네트워크 오류: '+e.message,'err')}
+}
+
+async function syncLoad(){
+  const token=document.getElementById('token-input').value.trim();
+  if(!token){setStatus('❌ 토큰을 입력해주세요','err');return}
+  localStorage.setItem(TKEY,token);
+  const gistId=HARDCODED_GIST_ID;
+  localStorage.setItem(GKEY,gistId);
+  setStatus('불러오는 중... (잠시 기다려주세요)','');
+  try{
+    const res=await fetch('https://api.github.com/gists/'+gistId,{
+      method:'GET',
+      headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}
+    });
+    setStatus('응답 받음: HTTP '+res.status,'');
+    if(!res.ok){
+      const errJson=await res.json().catch(()=>({}));
+      setStatus('❌ 실패 ('+res.status+'): '+(errJson.message||'알 수 없는 오류'),'err');
+      return;
+    }
+    const json=await res.json();
+    const fileContent=json.files&&json.files['exit90.json']&&json.files['exit90.json'].content;
+    if(fileContent){
+      const parsed=JSON.parse(fileContent);
+      if(parsed.categories&&parsed.days){
+        state=parsed;
+        state.categories.forEach(c=>{
+          if(c.name==='엄마 상속 처리') c.persistent=true;
+          else if(c.persistent===undefined) c.persistent=false;
+        });
+        if(!state.goals||state.goals.length===0) state.goals=JSON.parse(JSON.stringify(SEED_DATA.goals));
+        if(!state.goalChecks) state.goalChecks={};
+        save();renderAll();
+        setStatus('✅ 불러오기 완료 '+new Date().toLocaleTimeString(),'ok');
+      } else {
+        setStatus('❌ 데이터 형식 오류','err');
+      }
+    } else {
+      setStatus('❌ Gist에 파일이 없어요. 맥북에서 먼저 저장해주세요','err');
+    }
+  }catch(e){
+    setStatus('❌ 오류: '+e.message+' / '+e.name,'err');
+  }
+}
+
+document.getElementById('sync-save-btn').onclick=syncSave;
+document.getElementById('sync-load-btn').onclick=syncLoad;
+
+// ─────────────────────────────────────────
+//  Init
+// ─────────────────────────────────────────
+load();
+currentDay=todayDayNum();
+
+// restore token + gist id
+const savedToken=localStorage.getItem(TKEY)||'';
+if(savedToken) document.getElementById('token-input').value=savedToken;
+const savedGist=localStorage.getItem(GKEY)||HARDCODED_GIST_ID;
+if(savedGist){
+  localStorage.setItem(GKEY,savedGist);
+  document.getElementById('gist-id-input').value=savedGist;
+}
+
+// 파일 열자마자 Gist에서 최신 데이터 자동 로드
+async function autoLoadOnOpen(){
+  const token=localStorage.getItem(TKEY)||'';
+  const gistId=HARDCODED_GIST_ID;
+  localStorage.setItem(GKEY,gistId);
+
+  if(!token){
+    setStatus('⚠️ 토큰을 입력하고 저장 버튼을 눌러주세요 (최초 1회)','');
+    renderAll();
+    return;
+  }
+
+  setStatus('🔄 최신 데이터 확인 중...','');
+  renderAll(); // 로컬 먼저 보여주기
+
+  try{
+    const res=await fetch('https://api.github.com/gists/'+gistId,{
+      method:'GET',
+      headers:{
+        'Authorization':'token '+token,
+        'Accept':'application/vnd.github.v3+json',
+        'Cache-Control':'no-cache'
+      }
+    });
+
+    if(!res.ok){
+      setStatus('⚠️ 동기화 실패 ('+res.status+') — 토큰을 확인해주세요','err');
+      return;
+    }
+
+    const json=await res.json();
+    const fileContent=json.files&&json.files['exit90.json']&&json.files['exit90.json'].content;
+
+    if(!fileContent){
+      setStatus('⚠️ Gist에 저장된 데이터가 없어요. 저장 버튼을 먼저 눌러주세요','err');
+      return;
+    }
+
+    const parsed=JSON.parse(fileContent);
+    if(parsed.categories&&parsed.days){
+      // 날짜 수 비교 말고 무조건 Gist 우선 (가장 최신 저장이 진실)
+      state=parsed;
+      state.categories.forEach(c=>{
+        if(c.name==='엄마 상속 처리') c.persistent=true;
+        else if(c.persistent===undefined) c.persistent=false;
+      });
+      if(!state.goals||state.goals.length===0) state.goals=JSON.parse(JSON.stringify(SEED_DATA.goals));
+      if(!state.goalChecks) state.goalChecks={};
+      save();
+      currentDay=todayDayNum();
+      renderAll();
+      setStatus('✅ 동기화 완료 '+new Date().toLocaleTimeString(),'ok');
+    }
+  }catch(e){
+    setStatus('⚠️ 네트워크 오류: '+e.message,'err');
+  }
+}
+
+autoLoadOnOpen();
+</script>
+</body>
+</html>
